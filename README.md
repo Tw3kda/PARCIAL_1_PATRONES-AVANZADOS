@@ -96,6 +96,69 @@ Ver logs del backend / frontend:
 kubectl logs -n pedido-dev deploy/backend -f
 kubectl logs -n pedido-dev deploy/frontend -f
 
+## Preparar dependencias (Bitnami PostgreSQL)
+
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm dependency update
+
+## Instalar en el namespace pedido-dev
+helm install pedido-app . -n pedido-dev --create-namespace
+
+## Configurar DNS para el ingress
+kubectl get svc -n ingress-nginx
+
+## Otros comandos utiles
+kubectl get events -n pedido-dev
+kubectl describe ingress pedido-ingress -n pedido-dev
+
+# Estado general
+kubectl get pods,svc,ingress,hpa -n pedido-dev
+
+# Logs del backend
+kubectl logs -n pedido-dev deploy/backend -f
+
+# Logs del frontend
+kubectl logs -n pedido-dev deploy/frontend -f
+
+
+
+## Diagrama
+
+<img width="1024" height="1536" alt="image" src="https://github.com/user-attachments/assets/9e7221f1-7743-42fd-96a3-d9a2699e3384" />
+
+# Ingress
+
+- Es la puerta de entrada a la aplicación desde internet.
+
+- Se encarga de recibir las solicitudes HTTP/HTTPS y enrutar el tráfico hacia los servicios adecuados dentro del clúster de Kubernetes, en este caso hacia el Backend.
+
+# Backend
+
+- Es la capa que procesa la lógica de negocio de tu aplicación.
+
+- Recibe las solicitudes del Ingress y las pasa al FastAPI, que actúa como la API principal.
+
+# FastAPI
+
+- Es el framework web que sirve como API REST para tu aplicación.
+
+- Se encarga de manejar las rutas, controladores y la interacción con la base de datos.
+
+- Está conectado a PostgreSQL, que es donde se almacenan los datos de la aplicación.
+
+# PostgreSQL
+
+- Base de datos relacional que almacena la información de la aplicación (usuarios, pedidos, datos, etc.).
+
+- FastAPI interactúa con PostgreSQL para crear, leer, actualizar y eliminar datos (CRUD).
+
+# HPA (Horizontal Pod Autoscaler)
+
+- Es un recurso de Kubernetes que ajusta automáticamente la cantidad de pods de FastAPI según la carga de trabajo.
+
+- Garantiza que la aplicación pueda escalar horizontalmente si hay más tráfico y reducir pods si hay menos tráfico, optimizando recursos.
+
+
 
 
 
