@@ -158,6 +158,47 @@ kubectl logs -n pedido-dev deploy/frontend -f
 
 - Garantiza que la aplicación pueda escalar horizontalmente si hay más tráfico y reducir pods si hay menos tráfico, optimizando recursos.
 
+  ## Variables de entorno y configuración
+
+La aplicación utiliza **ConfigMap** y **Secret** para manejar la configuración y las credenciales de la base de datos de manera segura.
+
+### 1. ConfigMap (`backend-config`)
+Contiene información de configuración no sensible:
+
+- `DB_NAME` → nombre de la base de datos.
+- `DB_HOST` → host o servicio de la base de datos en Kubernetes.
+- `DB_PORT` → puerto de conexión (por defecto `5432`).
+
+### 2. Secret (`postgres`)
+Contiene credenciales sensibles en base64:
+
+- `DB_USER` → usuario de la base de datos.
+- `DB_PASSWORD` → contraseña del usuario.
+
+### 3. DATABASE_URL
+La variable de entorno `DATABASE_URL` se construye combinando los valores del ConfigMap y del Secret:
+
+```text
+postgresql://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)
+
+
++-----------------+       +-----------------+
+|   ConfigMap     |       |      Secret     |
+| DB_NAME         |       | DB_USER         |
+| DB_HOST         |       | DB_PASSWORD     |
+| DB_PORT         |       +-----------------+
++--------+--------+                |
+         |                         |
+         |                         |
+         |                         v
+         +---------------------> DATABASE_URL
+                                 |
+                                 v
+                           +----------------+
+                           |   Backend App  |
+                           +----------------+
+
+
 
 
 
